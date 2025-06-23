@@ -113,26 +113,13 @@ def addH3(url):
     global csvpath
     if not csvpath:
         createCsv()
-    updated_rows = []
-    #read csv file and modify matching row
-    with open(csvpath, mode='r', newline='', encoding='utf-8') as file:
+    with open(csvpath, mode='a', newline='', encoding='utf-8') as file:
         reader = csv.reader(file)
         header = next(reader)  #skip header
         for row in reader:
-            if len(row) < 3:
-                row.append("0")  #default value for third column (h2)
-
             if row[1] == url:
                 row[2] = "1"  #sets third column to 1 (h3)
 
-            updated_rows.append(row)
-    #rewrite csv with updated values
-    with open(csvpath, mode='w', newline='', encoding='utf-8') as file:
-        writer = csv.writer(file)
-        writer.writerow(header)
-        writer.writerows(updated_rows)
-
-    #print(f'marked {url} as 1')
 
 
 # def listSources():
