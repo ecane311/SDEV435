@@ -118,6 +118,8 @@ def addH3(url):
         header = next(reader)  #skip header
         for row in reader:
             if row[1] == url:
+                while len(row) < 3:
+                    row.append("")
                 row[2] = "1"  #sets third column to 1 (h3)
 
 
