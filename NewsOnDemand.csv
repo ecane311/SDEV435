@@ -1,5 +1,7 @@
-Source,URL
-CNN,https://cnn.com/
+"['[\'[\\\'[\\\\\\\'[""[\\\\\\\\\\\\\\\'Source\\\\\\\\\\\\\\\', \\\\\\\\\\\\\\\'URL\\\\\\\\\\\\\\\']""]\\\\\\\']\\\']\']']"
+CNN,https://cnn.com/,
 Fox,https://foxnews.com/,1
-NYT,https://nytimes.com/
-MSNBC,https://www.msnbc.com/
+MSNBC,https://www.msnbc.com/,
+AP,https://apnews.com/,1
+NPR,https://www.npr.org/,1
+ABC,https://abcnews.go.com/,1

@@ -60,9 +60,10 @@ def createCsv():
             writer.writerow(['Source', 'URL'])
             writer.writerow(['CNN', 'https://cnn.com/'])
             writer.writerow(['Fox', 'https://foxnews.com/', 1])
-            writer.writerow(['NYT', 'https://nytimes.com/'])
+            writer.writerow(['AP', 'https://apnews.com/', 1])
             writer.writerow(['MSNBC', 'https://www.msnbc.com/'])
-            ##ADD FIXED SOURCES HERE
+            writer.writerow(['NPR', 'https://www.npr.org/', 1])
+            writer.writerow(['ABC', 'https://abcnews.go.com/', 1])
         #print functions used for testing
         #print(f'file saved at: {csvpath}')
 
@@ -82,7 +83,7 @@ def listHeadlines ():
             source = row[0]
             url = row[1]
             headline = getHeadlines(url).strip() #prevents newlines
-            headlinestext += f"{source}: {headline}\n"
+            headlinestext += f"{source}: {headline}\n\n"
     return headlinestext
 
 
@@ -113,19 +114,32 @@ def addH3(url):
     global csvpath
     if not csvpath:
         createCsv()
-    with open(csvpath, mode='a', newline='', encoding='utf-8') as file:
+    updatedrows = []
+    with open(csvpath, mode='r', newline='', encoding='utf-8') as file:
         reader = csv.reader(file)
         header = next(reader)  #skip header
         for row in reader:
+            if len(row) < 3:
+                row.append("")
             if row[1] == url:
-                while len(row) < 3:
-                    row.append("")
-                row[2] = "1"  #sets third column to 1 (h3)
+                row[2] = "1"
+            updatedrows.append(row)
+    with open (csvpath, mode='w', newline='', encoding='utf-8') as file:
+        writer = csv.writer(file)
+        writer.writerow(header)
+        writer.writerows(updatedrows)
 
 
 
-# def listSources():
-#     global csvpath
-#     with open(csvpath, mode='r', newline='', encoding='utf-8') as file:
-#         for item in file:
-#             print(item)
+def listSources():
+     global csvpath
+     sourcelist = ""
+     with open(csvpath, mode='r', newline='', encoding='utf-8') as file:
+         reader = csv.reader(file)
+         next(reader, None)
+         for row in reader:
+             if len(row) >= 2:
+                source = row[0]
+                url = row[1]
+                sourcelist += f"{source}: {url}\n"
+         return sourcelist

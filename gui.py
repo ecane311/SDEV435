@@ -37,26 +37,77 @@ refreshbtn.pack()
 
 #Options/settings page
 optionsframe = notebook.tab("Options")
-optionslbl = ctk.CTkLabel(optionsframe, text="This is the options page")
+optionslbl = ctk.CTkLabel(optionsframe, text="Add a source: enter a name and a URL separated with a space to add it to News on Demand", pady=5)
 optionslbl.pack()
 sourcebox = ctk.CTkEntry(optionsframe)
 sourcebox.pack()
 
 errorlabel = ctk.CTkLabel(optionsframe)
-global newinput
 
 def addUserSource():
     userinput = sourcebox.get()
-    global newinput
     newinput = userinput.split()
     if len(newinput) < 2:
         errorlabel.configure(text="Enter a name and a URL separated with a space.")
         errorlabel.pack()
         return
+    if not newinput[1].startswith(("http://", "https://")):
+        errorlabel.configure(text="URL must start with http:// or https://")
+        errorlabel.pack()
+        return
     webscrape.addSource(newinput[0], newinput[1])
+    sourcebox.delete(0, ctk.END)
 
 addbutton = ctk.CTkButton(optionsframe, text="Add", command=addUserSource)
 addbutton.pack(pady=10)
 
+
+#removes a news source using removeSource from webscrape.py
+removelbl = ctk.CTkLabel(optionsframe, text="Remove a source: enter a source name to remove it from the program", pady=5)
+removelbl.pack()
+
+deletebox = ctk.CTkEntry(optionsframe)
+deletebox.pack()
+
+def removeUserSource():
+    userinput = deletebox.get()
+    webscrape.removeSource(userinput)
+    deletebox.delete(0, ctk.END)
+
+removebutton = ctk.CTkButton(optionsframe, text="Remove", command=removeUserSource)
+removebutton.pack(pady=10)
+
+#modifies the csv file to indicate to the webscraper to look for h3 instead of h2
+h3lbl= ctk.CTkLabel(optionsframe, text="Try getting <h3>: If a source is not working properly, enter the URL here to try a different method of getting headlines", pady=5)
+h3lbl.pack()
+
+h3box = ctk.CTkEntry(optionsframe)
+h3box.pack()
+
+def tryH3():
+    userinput = h3box.get()
+    webscrape.addH3(userinput)
+    h3box.delete(0, ctk.END)
+
+h3button = ctk.CTkButton(optionsframe, text="Try H3", command=tryH3)
+h3button.pack(pady=10)
+
+#lists current sources in the gui
+listlbl = ctk.CTkLabel(optionsframe, text="List of current sources", pady=10)
+listlbl.pack()
+
+global source
+startsourcelist = webscrape.listSources()
+source = ctk.CTkLabel(optionsframe,text= startsourcelist)
+source.pack()
+
+def listSources():
+    sourcelist = webscrape.listSources()
+    source.configure(text=sourcelist)
+    source.pack()
+listbtn = ctk.CTkButton(optionsframe, text="Update List", command=listSources)
+listbtn.pack()
+
+#gui driver
 def mainLoop():
     root.mainloop()
