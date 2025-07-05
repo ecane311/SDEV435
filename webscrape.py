@@ -97,19 +97,24 @@ def addSource(source, url):
 #remmoves source
 def removeSource(name):
     updatedrows = []
+    found = False
     with open(csvpath, mode='r', newline='', encoding='utf-8') as file:
         reader = csv.reader(file)
         header = next(reader)
         for row in reader:
             if row[0] != name:
                 updatedrows.append(row)
+            else:
+                found = True
+    if not found:
+        raise ValueError(f'"{name}" not found') #return error if not found
     with open(csvpath, mode='w', newline='', encoding='utf-8') as file:
         writer = csv.writer(file)
         writer.writerow([header])
         writer.writerows(updatedrows)
     #print(f'deleted {name}')
 
-
+#indicates getHeadlines to use <h3> for particular source
 def addH3(url):
     global csvpath
     if not csvpath:
@@ -122,7 +127,7 @@ def addH3(url):
             if len(row) < 3:
                 row.append("")
             if row[1] == url:
-                row[2] = "1"
+                row[2] = "1" if row[2] != "1" else "" #1 if 3rd row is blank, switches back to nothing if 3rd row is 1
             updatedrows.append(row)
     with open (csvpath, mode='w', newline='', encoding='utf-8') as file:
         writer = csv.writer(file)
