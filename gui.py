@@ -1,9 +1,16 @@
-from tkinter import *
-from tkinter import ttk
-from requests import options
+import os
+import sys
+from PIL import Image
 import webscrape
 import customtkinter as ctk
 from webscrape import listHeadlines
+
+def getAssets(filename):
+    if getattr(sys, 'frozen', False): #checks if packaged with pyinstaller
+        basepath = sys._MEIPASS #only relevant when frozen
+    else: #running as .py
+        basepath = os.path.dirname(os.path.abspath(__file__))
+    return os.path.join(basepath, filename)
 
 #gui root
 root = ctk.CTk()
@@ -19,10 +26,16 @@ notebook.add("Options")
 
 #main page
 mainframe = notebook.tab("Home")
+
+logo = Image.open(getAssets("NOD.png"))
+image = ctk.CTkImage(light_image=logo, dark_image=logo, size=(200, 200))
+imagelbl = ctk.CTkLabel(mainframe,text="", image=image)
+imagelbl.pack(pady=(0,20))
+
 headlinesList = webscrape.listHeadlines()
 global lbl
 lbl = ctk.CTkLabel(mainframe, text=headlinesList, font=("Arial", 16))
-lbl.pack(pady=(80, 0), padx=20)
+lbl.pack(pady=(40, 0), padx=20)
 
 def refreshHeadlines():
     global lbl
@@ -35,8 +48,19 @@ refreshbtn = ctk.CTkButton(mainframe, text="Refresh", command=refreshHeadlines)
 refreshbtn.pack()
 
 
+##---------------------------------
 #Options/settings page
 optionsframe = notebook.tab("Options")
+
+themelbl = ctk.CTkLabel(optionsframe, text="Change theme of application:", pady=5)
+themelbl.pack()
+
+def changeTheme(theme):
+    ctk.set_appearance_mode(theme)
+thememenu = ctk.CTkOptionMenu(optionsframe, values=["Light", "Dark"], command=changeTheme)
+thememenu.set("Dark")
+thememenu.pack(pady=10)
+
 optionslbl = ctk.CTkLabel(optionsframe, text="Add a source: enter a name and a URL separated with a space to add it to News on Demand", pady=5)
 optionslbl.pack()
 sourcebox = ctk.CTkEntry(optionsframe)
@@ -123,7 +147,7 @@ def listSources():
     source.configure(state="disabled")
     source.pack()
 listbtn = ctk.CTkButton(optionsframe, text="Update List", command=listSources)
-listbtn.pack()
+listbtn.pack(pady=5)
 
 #gui driver
 def mainLoop():

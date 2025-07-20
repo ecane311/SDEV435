@@ -3,6 +3,7 @@ from bs4 import BeautifulSoup
 import csv
 import os
 import sys
+from utils import readCsv, writeCsv, appendCsv
 
 csvfilename = 'NewsOnDemand.csv'
 csvpath = ''
@@ -21,10 +22,8 @@ def getHeadlines(url):
     tag = "h2"
 
     #read csv and check third column
-    with open(csvpath, mode='r', newline='', encoding='utf-8') as file:
-        reader = csv.reader(file)
-        next(reader, None)  #skip header
-        for row in reader:
+    allrows = readCsv(csvpath, skipheader=True)
+    for row in allrows:
             if len(row) >= 3 and row[1] == url:
                 tag = "h3" if row[2] == "1" else "h2"
                 break  #stop searching once we find a match
@@ -48,8 +47,6 @@ def createCsv():
     #creates filepath for csv
     csvpath = os.path.join(script_dir, csvfilename)
 
-    #print(f"Debug: csvpath is set to {csvpath}")
-
     #checks if file exists
     fileexists = os.path.exists(csvpath)
 
@@ -57,15 +54,14 @@ def createCsv():
         writer = csv.writer(file)
         #if it doesn't exist, create one
         if not fileexists:
-            writer.writerow(['Source', 'URL'])
+            writer.writerow(['Source', 'URL', "h3"])
             writer.writerow(['CNN', 'https://cnn.com/'])
             writer.writerow(['Fox', 'https://foxnews.com/', 1])
             writer.writerow(['AP', 'https://apnews.com/', 1])
             writer.writerow(['MSNBC', 'https://www.msnbc.com/'])
             writer.writerow(['NPR', 'https://www.npr.org/', 1])
             writer.writerow(['ABC', 'https://abcnews.go.com/', 1])
-        #print functions used for testing
-        #print(f'file saved at: {csvpath}')
+
 
 #Loops through csv file and gets sources for each entry
 def listHeadlines ():
@@ -73,13 +69,11 @@ def listHeadlines ():
 
     if not csvpath:
         createCsv()
-    with open(csvpath, mode='r', newline='', encoding='utf-8') as file:
-        reader = csv.reader(file)
-        next(reader, None) #skips header
+        datarows = readCsv(csvpath, skipheader=True)#skips header
 
         headlinestext = ""
 
-        for row in reader:
+        for row in datarows:
             source = row[0]
             url = row[1]
             headline = getHeadlines(url).strip() #prevents newlines
@@ -89,62 +83,48 @@ def listHeadlines ():
 
 #adds source to csv
 def addSource(source, url):
-    with open(csvpath, mode='a', newline='', encoding='utf-8') as file:
-        writer = csv.writer(file)
-        writer.writerow([source, url])
-    #print(f'added {source} - {url}')
+    appendCsv(csvpath, [source, url])
 
-#remmoves source
+
+#removes source
 def removeSource(name):
-    updatedrows = []
-    found = False
-    with open(csvpath, mode='r', newline='', encoding='utf-8') as file:
-        reader = csv.reader(file)
-        header = next(reader)
-        for row in reader:
-            if row[0] != name:
-                updatedrows.append(row)
-            else:
-                found = True
-    if not found:
-        raise ValueError(f'"{name}" not found') #return error if not found
-    with open(csvpath, mode='w', newline='', encoding='utf-8') as file:
-        writer = csv.writer(file)
-        writer.writerow([header])
-        writer.writerows(updatedrows)
-    #print(f'deleted {name}')
+    allrows = readCsv(csvpath)
+    header = allrows[0]
+    datarows = allrows[1:]
 
-#indicates getHeadlines to use <h3> for particular source
+    updatedrows = [row for row in datarows if row[0] != name]
+    if len(updatedrows) == len(datarows):
+        raise ValueError(f'"{name}" not found')
+    writeCsv(csvpath, header, updatedrows)
+
+#indicates getHeadlines to use <h3> for a particular source
 def addH3(url):
     global csvpath
     if not csvpath:
         createCsv()
+
     updatedrows = []
-    with open(csvpath, mode='r', newline='', encoding='utf-8') as file:
-        reader = csv.reader(file)
-        header = next(reader)  #skip header
-        for row in reader:
-            if len(row) < 3:
-                row.append("")
-            if row[1] == url:
-                row[2] = "1" if row[2] != "1" else "" #1 if 3rd row is blank, switches back to nothing if 3rd row is 1
-            updatedrows.append(row)
-    with open (csvpath, mode='w', newline='', encoding='utf-8') as file:
-        writer = csv.writer(file)
-        writer.writerow(header)
-        writer.writerows(updatedrows)
+    allrows = readCsv(csvpath)
+    header = allrows[0]
+    datarows = allrows[1:]
+
+    for row in datarows:
+        if len(row) < 3:
+            row.append("")
+        if row[1] == url:
+            row[2] = "1" if row[2] != "1" else "" #1 if 3rd row is blank, switches back to nothing if 3rd row is 1
+        updatedrows.append(row)
+    writeCsv(csvpath, header, updatedrows)
 
 
 
 def listSources():
-     global csvpath
-     sourcelist = ""
-     with open(csvpath, mode='r', newline='', encoding='utf-8') as file:
-         reader = csv.reader(file)
-         next(reader, None)
-         for row in reader:
-             if len(row) >= 2:
-                source = row[0]
-                url = row[1]
-                sourcelist += f"{source}: {url}\n"
-         return sourcelist
+    global csvpath
+    sourcelist = ""
+    datarows = readCsv(csvpath, skipheader=True)
+    for row in datarows:
+        if len(row) >= 2:
+            source = row[0]
+            url = row[1]
+            sourcelist += f"{source}: {url}\n"
+    return sourcelist
