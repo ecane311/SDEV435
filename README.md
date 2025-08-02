@@ -1,1 +1,1 @@
-This project scrapes news websites for headlines and returns them to the user.
+This project uses Beautiful Soup 4 to scrape the HTML of user-defined websites and returns select headlines. Headlines are found by searching for "h2" or "h3" tags. The user can switch between these tags in the options tab for better functionality. The program runs in a GUI using CustomTkinter and allows users to add, remove, alter and view their sources and headlines. 
