@@ -1,3 +1,4 @@
+#This module contains the webscraping and csv functions. webscraping is done with bs4
 import requests
 from bs4 import BeautifulSoup
 import csv
@@ -8,7 +9,6 @@ from utils import readCsv, writeCsv, appendCsv
 csvfilename = 'NewsOnDemand.csv'
 csvpath = ''
 
-#function for getting headlines
 def getHeadlines(url):
     global csvpath
 
@@ -33,8 +33,6 @@ def getHeadlines(url):
     return headline.text if headline else "No headline found."
 
 
-
-#creates csv file in the same path as executable / project
 #I wanted the file to be consistent in where it can be found by both the user and the program
 def createCsv():
     global csvpath
@@ -47,12 +45,12 @@ def createCsv():
     #creates filepath for csv
     csvpath = os.path.join(script_dir, csvfilename)
 
-    #checks if file exists
+
     fileexists = os.path.exists(csvpath)
 
     with open(csvpath, mode='a', newline='', encoding='utf-8') as file:
         writer = csv.writer(file)
-        #if it doesn't exist, create one
+
         if not fileexists:
             writer.writerow(['Source', 'URL', "h3"])
             writer.writerow(['CNN', 'https://cnn.com/'])
@@ -69,7 +67,7 @@ def listHeadlines ():
 
     if not csvpath:
         createCsv()
-        datarows = readCsv(csvpath, skipheader=True)#skips header
+        datarows = readCsv(csvpath, skipheader=True)
 
         headlinestext = ""
 
@@ -81,12 +79,12 @@ def listHeadlines ():
     return headlinestext
 
 
-#adds source to csv
+
 def addSource(source, url):
     appendCsv(csvpath, [source, url])
 
 
-#removes source
+
 def removeSource(name):
     allrows = readCsv(csvpath)
     header = allrows[0]

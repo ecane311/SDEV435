@@ -1,3 +1,4 @@
+#this module configures the gui. it uses customtkinter and functions from webscrape.py
 import os
 import sys
 from PIL import Image
@@ -41,11 +42,30 @@ def refreshHeadlines():
     global lbl
     headlines = listHeadlines()
     lbl.configure(text=headlines)
-    #testlabel = ctk.CTkLabel(mainframe, text="refresh pressed")
-    #testlabel.pack()
+
 
 refreshbtn = ctk.CTkButton(mainframe, text="Refresh", command=refreshHeadlines)
 refreshbtn.pack()
+
+#Auto-refreshes headlines, includes toggle button
+autoupdate = True
+def autoRefresh():
+    if autoupdate:
+        refreshHeadlines()
+        root.after(600000, autoRefresh())
+
+refreshstatus = ctk.CTkLabel(mainframe, text='')
+
+def toggleRefresh():
+    global autoupdate
+    autoupdate = not autoupdate
+    status = "Auto-Refresh turned on" if autoupdate else "Auto-Refresh turned off"
+    refreshstatus.configure(text=status)
+    refreshstatus.pack()
+
+
+togglebutton = ctk.CTkButton(mainframe, text="Toggle Auto-Refresh", command = toggleRefresh)
+togglebutton.pack(pady=5)
 
 
 ##---------------------------------
@@ -57,6 +77,7 @@ themelbl.pack()
 
 def changeTheme(theme):
     ctk.set_appearance_mode(theme)
+
 thememenu = ctk.CTkOptionMenu(optionsframe, values=["Light", "Dark"], command=changeTheme)
 thememenu.set("Dark")
 thememenu.pack(pady=10)
@@ -68,10 +89,12 @@ sourcebox.pack()
 
 errorlabel = ctk.CTkLabel(optionsframe)
 
+
+#adds source
 def addUserSource():
     userinput = sourcebox.get()
     newinput = userinput.split()
-    if len(newinput) < 2:
+    if len(newinput) < 2: #if only one item
         errorlabel.configure(text="Enter a name and a URL separated with a space.", text_color="red")
         errorlabel.pack()
         sourcebox.delete(0, ctk.END)
@@ -88,7 +111,7 @@ addbutton = ctk.CTkButton(optionsframe, text="Add", command=addUserSource)
 addbutton.pack(pady=15)
 
 
-#removes a news source using removeSource from webscrape.py
+#remove source
 removelbl = ctk.CTkLabel(optionsframe, text="Remove a source: enter a source name to remove it from the program", pady=5)
 removelbl.pack()
 
@@ -133,6 +156,7 @@ listlbl.pack()
 
 global source
 startsourcelist = webscrape.listSources()
+#textbox so users can copy-paste in the gui
 source = ctk.CTkTextbox(optionsframe, width=300, height=150)
 source.tag_config("center", justify="center")
 source.pack()
