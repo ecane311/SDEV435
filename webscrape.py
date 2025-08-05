@@ -67,15 +67,15 @@ def listHeadlines ():
 
     if not csvpath:
         createCsv()
-        datarows = readCsv(csvpath, skipheader=True)
+    datarows = readCsv(csvpath, skipheader=True)
 
-        headlinestext = ""
+    headlinestext = ""
 
-        for row in datarows:
-            source = row[0]
-            url = row[1]
-            headline = getHeadlines(url).strip() #prevents newlines
-            headlinestext += f"{source}: {headline}\n\n"
+    for row in datarows:
+        source = row[0]
+        url = row[1]
+        headline = getHeadlines(url).strip() #prevents newlines
+        headlinestext += f"{source}: {headline}\n\n"
     return headlinestext
 
 

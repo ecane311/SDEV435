@@ -40,7 +40,7 @@ lbl.pack(pady=(40, 0), padx=20)
 
 def refreshHeadlines():
     global lbl
-    headlines = listHeadlines()
+    headlines = webscrape.listHeadlines()
     lbl.configure(text=headlines)
 
 
